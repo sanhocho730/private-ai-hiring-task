@@ -1,0 +1,11 @@
+{
+  "01_employee_handbook.md": "O",
+  "02_product_faq.md": "O",
+  "03_holiday_schedule_2027.md": "O",
+  "04_q3_sales_by_customer.md": "S",
+  "05_vendor_contract_terms.md": "S",
+  "06_project_priority_memo.md": "S",
+  "07_ma_memo.md": "C",
+  "08_security_incident_2026-08.md": "C",
+  "09_exec_compensation.md": "C"
+}

@@ -1,0 +1,5 @@
+{
+  "staff01":   {"name": "김민준", "role": "staff",   "clearance": "O"},
+  "manager01": {"name": "이서연", "role": "manager", "clearance": "S"},
+  "exec01":    {"name": "박대표", "role": "exec",    "clearance": "C"}
+}
