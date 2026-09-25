@@ -1,0 +1,13 @@
+num,user,expected,actual,visible_doc_max,visible_line_max,hidden_S_max,hidden_C_max
+1,staff01,answer,answer,0.572,0.636,0.465,0.409
+2,staff01,S,S,0.368,0.458,0.719,0.432
+3,staff01,S,S,0.398,0.444,0.595,0.394
+4,staff01,none,none,0.318,0.357,0.423,0.481
+5,staff01,answer,answer,0.663,0.663,0.468,0.414
+6,manager01,answer,answer,0.712,0.712,0,0.437
+7,manager01,answer,answer,0.627,0.709,0,0.377
+8,manager01,none,none,0.378,0.397,0,0.506
+9,manager01,C,C,0.592,0.592,0,0.483
+10,exec01,answer,answer,0.722,0.722,0,0
+11,exec01,answer,answer,0.585,0.658,0,0
+12,staff01,answer,answer,0.659,0.659,0.351,0.329

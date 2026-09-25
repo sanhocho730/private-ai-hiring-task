@@ -1,0 +1,10 @@
+doc,label,rule,qwen2.5:3b,exaone3.5:2.4b
+01_employee_handbook.md,O,,O,S
+02_product_faq.md,O,,O,S
+03_holiday_schedule_2027.md,O,,O,O
+04_q3_sales_by_customer.md,S,S,S,S
+05_vendor_contract_terms.md,S,S,O,S
+06_project_priority_memo.md,S,S,S,S
+07_ma_memo.md,C,C,C,C
+08_security_incident_2026-08.md,C,C,C,C
+09_exec_compensation.md,C,C,C,C

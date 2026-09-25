@@ -1,0 +1,6 @@
+method,correct,total
+rules only (표식 없으면 O),9,9
+qwen2.5:3b only,8,9
+qwen2.5:3b + rules (높은 등급),9,9
+exaone3.5:2.4b only,7,9
+exaone3.5:2.4b + rules (높은 등급),7,9

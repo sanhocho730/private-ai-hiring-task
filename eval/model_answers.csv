@@ -1,0 +1,3 @@
+model,facts_expected,facts_in_answer,facts_with_source,answers_with_han,leaked_tokens,avg_seconds
+qwen2.5:3b,14,11,14,1,0,9.6
+exaone3.5:2.4b,14,12,14,0,0,6.1

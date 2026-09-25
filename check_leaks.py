@@ -11,6 +11,12 @@ TOKEN = re.compile(r"[0-9][0-9.,~/%-]*[0-9%]|[0-9]+|[가-힣A-Za-z]{2,}")
 GENERIC = {"해당", "관련", "내용", "경우", "따라서", "현재", "정보", "사항", "확인"}
 JOSA = re.compile(r"(으로|에서|에게|까지|부터|이며|이고|입니다|이다|하고|할|을|를|이|가|은|는|의|에|로|와|과|도|만|야)$")
 
+LABELS = json.loads((C.ROOT / "tests" / "labels.json").read_text(encoding="utf-8"))
+USERS = json.loads(C.USERS_FILE.read_text(encoding="utf-8"))
+DOCS = {p.name: p.read_text(encoding="utf-8") for p in C.DOCS_DIR.glob("*.md")}
+# 고정 문장과 LLM 지시문(예: "문서에서 확인할 수 없습니다")은 문서 유래가 아니므로 비교에서 뺀다.
+FIXED = " ".join([C.NO_ANSWER, C.HINT_ONLY, C.S_HINT, C.C_HINT, SYSTEM])
+
 
 def tokens(text: str) -> set:
     """단어 단위 토큰. 한글 단어는 끝의 조사를 떼어 비교한다 (예: "대성식품이" → "대성식품")."""
@@ -21,25 +27,26 @@ def tokens(text: str) -> set:
             out.add(t)
     return out - GENERIC
 
-labels = json.loads((C.ROOT / "tests" / "labels.json").read_text(encoding="utf-8"))
-users = json.loads(C.USERS_FILE.read_text(encoding="utf-8"))
-docs = {p.name: p.read_text(encoding="utf-8") for p in C.DOCS_DIR.glob("*.md")}
-questions = re.findall(r"^\|\s*(\d+)\s*\|\s*(\w+)\s*\|\s*(.+?)\s*\|",
-                       (C.ROOT / "tests" / "questions.md").read_text(encoding="utf-8"), re.M)
-answers = dict(re.findall(r"^## (\d+)\..*?\n\n```\n(.*?)\n```",
-                          (C.ROOT / "tests" / "output.md").read_text(encoding="utf-8"), re.S | re.M))
-# 고정 문장과 LLM 지시문(예: "문서에서 확인할 수 없습니다")은 문서 유래가 아니므로 비교에서 뺀다.
-fixed = " ".join([C.NO_ANSWER, C.HINT_ONLY, C.S_HINT, C.C_HINT, SYSTEM])
 
-total = 0
-for num, user, question in questions:
-    level = C.LEVEL[users[user]["clearance"]]
-    visible = " ".join(t for n, t in docs.items() if C.LEVEL[labels[n]] <= level)
-    hidden = [n for n in docs if C.LEVEL[labels[n]] > level]
-    allowed = tokens(visible + " " + question + " " + fixed)
-    secret = set().union(*(tokens(docs[n]) for n in hidden)) - allowed if hidden else set()
-    leaked = sorted(secret & tokens(answers.get(num, "")))
-    total += len(leaked)
-    print(f"[{num:>2}] {user:9} 초과문서 {len(hidden)}개 / 비밀토큰 {len(secret):3}개 → "
-          + ("유출 없음" if not leaked else f"의심 {leaked}"))
-print(f"\n의심 토큰 합계: {total}")
+def leaks(user: str, question: str, answer: str) -> tuple:
+    """(초과 문서 수, 비밀 토큰 수, 답변에서 발견된 비밀 토큰)"""
+    level = C.LEVEL[USERS[user]["clearance"]]
+    visible = " ".join(t for n, t in DOCS.items() if C.LEVEL[LABELS[n]] <= level)
+    hidden = [n for n in DOCS if C.LEVEL[LABELS[n]] > level]
+    allowed = tokens(visible + " " + question + " " + FIXED)
+    secret = set().union(*(tokens(DOCS[n]) for n in hidden)) - allowed if hidden else set()
+    return len(hidden), len(secret), sorted(secret & tokens(answer))
+
+
+if __name__ == "__main__":
+    questions = re.findall(r"^\|\s*(\d+)\s*\|\s*(\w+)\s*\|\s*(.+?)\s*\|",
+                           (C.ROOT / "tests" / "questions.md").read_text(encoding="utf-8"), re.M)
+    answers = dict(re.findall(r"^## (\d+)\..*?\n\n```\n(.*?)\n```",
+                              (C.ROOT / "tests" / "output.md").read_text(encoding="utf-8"), re.S | re.M))
+    total = 0
+    for num, user, question in questions:
+        n_hidden, n_secret, leaked = leaks(user, question, answers.get(num, ""))
+        total += len(leaked)
+        print(f"[{num:>2}] {user:9} 초과문서 {n_hidden}개 / 비밀토큰 {n_secret:3}개 → "
+              + ("유출 없음" if not leaked else f"의심 {leaked}"))
+    print(f"\n의심 토큰 합계: {total}")
